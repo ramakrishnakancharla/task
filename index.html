@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>
+AngularJs Task
+</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="js/angular1.4.min.js"></script>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src = "js/zingchart.min.js"></script>  
+<script src = "js/zingchart-angularjs.js"></script>
+
+<script type="text/javascript">
+var app = angular.module("TaskApp", ['zingchart-angularjs']);
+app.controller("TaskController", function ($scope,$rootScope,$http,$timeout) {
+
+$http({ method: 'POST', url: 'JsonExamFile1.json' }).success(function (data) {
+            console.log('hello');
+            $scope.users = data; // response data
+        }).
+        error(function (data) {
+            console.log(data);
+        });
+		var tot=0;
+	 $http({ method: 'POST', url: 'JsonExamFile2.json' }).success(function (data) {
+            $scope.users2 = data; // response data 
+        }).
+        error(function (data) {
+            console.log(data);
+        });
+
+$timeout(function() {
+	$scope.newArray = $scope.users.map(function(item){
+		item.total = $scope.users2.reduce(function(pre, obj){
+			if(item.ProgramID == obj.ProgramID)
+				return pre +=obj.Sales
+			else 
+				return pre			
+		},0)
+		return item		
+	})	
+}, 1000);
+	
+});
+
+</script>
+<style type="text/css">
+
+</style>
+</head>
+<body ng-app="TaskApp">
+<div ng-controller="TaskController">
+<div class="container well">
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#">Bashboard</a></li>
+    <li><a href="#">SIgn In</a></li>
+    <li><a href="#">Classes</a></li>
+    <li><a href="#">Workshops</a></li>
+    <li><a href="#">Appointments</a></li>
+    <li><a href="#">Client Home</a></li>
+    <li><a href="#">Rental</a></li>
+  </ul>
+  <br>
+  <p>
+  
+  <div class="row" >
+	<div class="col-sm-4" ng-repeat="user in newArray">
+          <div class="well" style="background:#fff">
+		  <div class="row" >
+		  <div class="col-sm-10">{{user.Name}}</div>
+		  <div class="col-sm-2">
+		  <a href="#">
+          <span class="glyphicon glyphicon-pencil"></span>
+         </a>
+		 </div>
+		</div>
+		    <zingchart  class="chart-1" zc-values="[user.Sales.CurrentYear,user.Sales.PreviousYear]" zc-height="300" zc-width="330" zc-type="bar"></zingchart>
+			<div class="row" style="background-color:#eee;padding:6px">
+				<div class="col-sm-5">Total Monthly<br/> Sales</div>
+				<div class="col-sm-4">Current <br/> {{user.total | currency}}</div>
+				<div class="col-sm-3">1-Year <br/></div>
+			</div>
+			<br/>
+			<table style="line-height:25px;">
+			<tr>
+			<th> Price Name</th>
+			<th> Current  &nbsp;</th>
+			<th> &nbsp; 1-Year</th>
+			</tr>
+			<tr ng-repeat="user2 in users2">
+				<td ng-if="user.ProgramID==user2.ProgramID">{{user2.Name}}</td>
+				<td ng-if="user.ProgramID==user2.ProgramID">{{user2.Sales | currency}}</td>
+				<td ng-if="user.ProgramID==user2.ProgramID"></td>
+		   </tr>
+		   </table>
+          </div>
+    </div>
+  </div>
+  </p>
+</div>
+
+
+   
+</div>
+
+</body>
+</html>
